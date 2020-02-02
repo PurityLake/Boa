@@ -56,10 +56,10 @@ BoaObject *add_BoaList(BoaObject *this, BoaObject *other) {
 
 char *tostring_BoaList(BoaObject *this) {
     BoaList *_this = BOA_OBJ_TO(this, BoaList);
+    BoaObject **temp = _this->value;
     char *value = (char *)malloc(100);
     char *iter = value;
     memset(value, '\0', 100);
-    BoaObject **temp = _this->value;
     if (*temp != NULL) {
         int len = sprintf(iter, "[ %s",  STR_FUNC(*temp));
         iter += len;

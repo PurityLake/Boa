@@ -8,17 +8,17 @@ int main(int argc, char **argv) {
     if (argc > 1) {
         if (strcmp(argv[1], "--object") == 0) {
             init_GC();
-            BoaInteger *i = create_BoaInteger(2);
-            BoaInteger *j = create_BoaInteger(1);
+            BoaInteger *a = create_BoaInteger(1);
+            BoaInteger *b = create_BoaInteger(2);
             BoaList *list = create_BoaList(32);
-            //ADD_FUNC(list, i);
-            //ADD_FUNC(list, j);
+            ADD_FUNC(list, a);
+            ADD_FUNC(list, b);
             char *value = STR_FUNC(list);
             printf("%s\n", value);
             free(value);
             destroy_BoaList(list);
-            destroy_BoaInteger(i);
-            destroy_BoaInteger(j);
+            destroy_BoaInteger(a);
+            destroy_BoaInteger(b);
             cleanup_GC();
         } else if (strcmp(argv[1], "--gc") == 0) {
             init_GC();
