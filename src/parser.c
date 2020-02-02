@@ -46,16 +46,16 @@ int accept_type(int type) {
     return 0;
 }
 
-void ident() {
+void ident(Node *node) {
     if (_is_error) return;
-    printf("ident: %s\n", (*_curr)->value);
+    node->token = *_curr;
     if (!accept_type(T_IDENT)) {
         error("Invalud identifier: '%s'", (*_curr)->value);
         return;
     }
 }
 
-void number() {
+void number(Node *node) {
     if (_is_error) return;
     size_t len = strlen((*_curr)->value);
     for (int i = 0; i < len; i++) {
@@ -64,74 +64,88 @@ void number() {
             return;
         }
     }
-    printf("number: %s\n", (*_curr)->value);
     accept((*_curr)->value);
 }
 
-int op(int give_error) {
+int op(Node *node, int give_error) {
     if (_is_error) return 0;
     if (accept("+") || accept("-") || accept("*") || accept("/") || accept("=")) {
-        printf("op: %s\n", (*(_curr - 1))->value);
         if (give_error) error("Invalid op: '%s'\n", (*_curr)->value);
+        node->token = create_token((*(_curr - 1))->type, (*(_curr - 1))->value, 
+                            (*(_curr - 1))->line, (*(_curr - 1))->col);
         return 1;
     }
+    node->token = NULL;
     return 0;
 }
 
-void expression() {
+void expression(Node *node) {
     if (_is_error) return;
-    printf("expression\n");
-    ident();
-    while (op(0)) {
-        ident();
+    Node *i = create_node_with_parent(NULL, node);
+    Node *o = create_node_with_parent(NULL, node);
+    ident(i);
+    while (op(o, 0)) {
+        node->token = o->token;
+        node->left = i;
+        node->right = create_node_with_parent(NULL, node);
+        node = node->right;
+        i = create_node_with_parent(NULL, node);
+        o = create_node_with_parent(NULL, node);
+        ident(i);
     }
+    node->left = i;
 }
 
-void var_dec() {
+void var_dec(Node *node) {
     if (_is_error) return;
-    printf("var_dec\n");
-    ident();
+    node->left->token = create_token(T_VAR_DEC, "VAR_DEC", (*_curr)->line, (*_curr)->col);
+    node = node->left;
+    Node *i = create_node_with_parent(NULL, node);
+    ident(i);
     if (expect("=", "Line %d:%d: Expected a '=' in variable declation!")) {
-        expression();
+        node->left = create_node_with_parent(create_token(T_EQ, "=", (*(_curr - 1))->line, (*(_curr - 1))->col), node);
+        node = node->left;
+        node->left = create_node_with_parent(i->token, node);
+        node->right = create_node_with_parent(NULL, node);
+        expression(node->right);
     }
 }
 
-void param_list() {
+void param_list(Node *node) {
     if (_is_error) return;
-    printf("param_list\n");
     expect("(", "Line %d:%d: Excected ')' at the start of a parameter list.");
     while ((*_curr)->type != T_RPAREN) {
-        ident();
+        ident(node);
         if (accept(",")) continue;
         if (accept("=")) {
-            printf("param_list: =\n");
-            ident();
+            ident(node);
         }
     }
     expect(")", "Line %d:%d: Excected ')' at the end of a parameter list.");
 }
 
-void func_dec() {
+void func_dec(Node *node) {
     if (_is_error) return;
-    printf("func_dec\n");
-    ident();
-    param_list();
+    ident(node);
+    param_list(node);
 }
 
-void block() {
-    if (_is_error) return;
-    printf("block\n");
+Node *block() {
+    if (_is_error) return NULL;
+    Node *node = create_node(create_token(T_BLOCK, "BLOCK", (*_curr)->line, (*_curr)->col));
+    node->left = create_node_with_parent(NULL, node);
     if (accept("var")) {
-        var_dec();
+        var_dec(node);
         expect(";", "Line %d:%d: Excected ';' at the end of a statement!");
     } else if (accept("def")) {
-        func_dec();
+        func_dec(node);
     }
+    return node;
 }
 
-void parse_line(token **line) {
+Node *parse_line(Token **line) {
     _curr = line;
-    block();
+    return block();
 }
 
 #ifdef __cplusplus

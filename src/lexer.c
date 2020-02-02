@@ -4,8 +4,8 @@
 extern "C" {
 #endif
 
-token *create_token(int type, char *value, unsigned int line, unsigned int col) {
-    token *ret = (token *)malloc(sizeof(token));
+Token *create_token(int type, char *value, unsigned int line, unsigned int col) {
+    Token *ret = (Token *)malloc(sizeof(Token));
     ret->type = type;
     ret->line = line;
     ret->col = col;
@@ -13,29 +13,29 @@ token *create_token(int type, char *value, unsigned int line, unsigned int col) 
     return ret;
 }
 
-void free_token(token **token) {
-    free((*token)->value);
-    (*token)->value = NULL;
-    free(*token);
+void free_token(Token **Token) {
+    free((*Token)->value);
+    (*Token)->value = NULL;
+    free(*Token);
 }
 
-token **create_token_array(unsigned int length) {
-    token **ret = (token**)malloc(sizeof(token*) * length);
+Token **create_token_array(unsigned int length) {
+    Token **ret = (Token**)malloc(sizeof(Token*) * length);
     for (int i = 0; i < length; ++i) {
         ret[i] = NULL;
     }
     return ret;
 }
 
-void free_token_array(token ***arr) {
-    token **a = *arr;
+void free_token_array(Token ***arr) {
+    Token **a = *arr;
     while ((*a) != NULL) {
         free_token(a);
         ++a;
     }
 }
 
-token *lexeme_to_token(const char *lexeme, int len, int lineno, int col) {
+Token *lexeme_to_token(const char *lexeme, int len, int lineno, int col) {
     char *resized_lexeme = (char *)malloc(sizeof(char) * len);
     memset(resized_lexeme, '\0', len);
     strncpy(resized_lexeme, lexeme, len);
@@ -49,18 +49,18 @@ token *lexeme_to_token(const char *lexeme, int len, int lineno, int col) {
     return create_token(T_IDENT, resized_lexeme, lineno, col);
 }
 
-token **lex_line(const char *line_text, unsigned int lineno) {
-    token **arr = create_token_array(MAX_TOKENS_PER_LINE);
+Token **lex_line(const char *line_text, unsigned int lineno) {
+    Token **arr = create_token_array(MAX_TOKENS_PER_LINE);
     char buf[MAX_LEXEME_SIZE];
     int buf_idx = 0;
-    int start_tok = -1;
+    int start_tok = 0;
     int line_idx = 0;
     int i = 0;
     memset(buf, '\0', MAX_LEXEME_SIZE);
     while (line_text[line_idx] != '\n' && line_text[line_idx] != '\0') {
         if (isspace(line_text[line_idx])) {
             if (buf_idx > 0) {
-                arr[i++] = lexeme_to_token(buf, buf_idx+1, lineno, start_tok);
+                arr[i++] = lexeme_to_token(buf, buf_idx+1, lineno, (start_tok == -1) ? line_idx : start_tok);
                 memset(buf, '\0', buf_idx);
                 buf_idx = 0;
                 start_tok = -1;

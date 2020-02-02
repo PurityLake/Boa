@@ -1,7 +1,8 @@
 #ifndef __H_PARSER__
 #define __H_PARSER__
 
-#include "lexer.h"
+#include "grammar/lexer.h"
+#include "ast/ast.h"
 
 #include <ctype.h>
 #include <stdarg.h>
@@ -12,18 +13,18 @@ extern "C" {
 #endif
 
 static int _is_error = 0;
-static token **_curr;
+static Token **_curr;
 
-void block();
+Node *block();
 
-void ident();
-void number();
-int op(int give_error);
-void expression();
-void var_dec();
-void param_list();
-void func_dec();
-void parse_line(token **line);
+void ident(Node *node);
+void number(Node *node);
+int op(Node *node, int give_error);
+void expression(Node *node);
+void var_dec(Node *node);
+void param_list(Node *node);
+void func_dec(Node *node);
+Node *parse_line(Token**);
 
 #ifdef __cplusplus
 }

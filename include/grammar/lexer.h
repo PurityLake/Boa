@@ -12,6 +12,8 @@
 extern "C" {
 #endif
 
+typedef unsigned opcode_t;
+
 enum {
     T_IDENT = 0,
     
@@ -24,14 +26,16 @@ enum {
     T_COMMA, T_DOT,
     T_MULT, T_PLUS, T_MINUS, T_DIV, T_EQ, T_SEMI,
     T_OPS_END,
+
+    T_BLOCK, T_VAR_DEC
 };
 
 typedef struct {
-    int type;
+    opcode_t type;
     unsigned int line;
     unsigned int col;
     char *value;
-} token;
+} Token;
 
 typedef struct {
     int type;
@@ -58,10 +62,10 @@ static const _translation_table_entry _trans_table[] = {
 
 static const size_t TABLE_SIZE = sizeof(_trans_table) / sizeof(_translation_table_entry);
 
-token  *create_token(int type, char *value, unsigned int line, unsigned int col);
-void    free_token(token **tok);
-void    free_token_array(token ***arr);
-token **lex_line(const char *line_text, unsigned int lineno);
+Token  *create_token(int type, char *value, unsigned int line, unsigned int col);
+void    free_token(Token **tok);
+void    free_token_array(Token ***arr);
+Token **lex_line(const char *line_text, unsigned int lineno);
 
 int is_op(char c);
 

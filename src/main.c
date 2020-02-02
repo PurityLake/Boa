@@ -50,11 +50,14 @@ int main(int argc, char **argv) {
                     char c = fgetc(prog);
                     if (c == '\n' || feof(prog)) {
                         if (i > 0) {
-                            token **line = lex_line(line_str, lineno);
+                            Token **line = lex_line(line_str, lineno);
                             
-                            printf("%s\n", line_str);
-                            parse_line(line);
+                            //printf("%s\n", line_str);
+                            Node *n = parse_line(line);
+                            print_node(n);
                             printf("\n");
+
+                            //printf("\n");
                             
                             free_token_array(&line);
                             memset(line_str, '\0', i+1);
