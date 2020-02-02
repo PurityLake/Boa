@@ -18,10 +18,10 @@ typedef struct {
     BoaObject **value;
 } BoaList;
 
-BoaList *malloc_BoaList(bint_t capacity);
+BoaList *create_BoaList(bint_t capacity);
 BoaObject *add_BoaList(BoaObject *this, BoaObject *other);
 char *tostring_BoaList(BoaObject *this);
-void free_BoaList(BoaList *o);
+void destroy_BoaList(BoaList *o);
 
 #ifdef __cplusplus
 }

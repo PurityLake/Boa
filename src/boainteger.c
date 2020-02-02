@@ -9,9 +9,9 @@ static BoaObjectImpl BoaIntegerObjectImpl = {
     tostring_BoaInteger
 };
 
-BoaInteger *malloc_BoaInteger(bint_t value) {
+BoaInteger *create_BoaInteger(bint_t value) {
     BoaObject obj = { 0, &BoaIntegerObjectImpl };
-    BoaInteger *out = (BoaInteger *)malloc(sizeof(BoaInteger));
+    BoaInteger *out = (BoaInteger *)malloc_GC(sizeof(BoaInteger));
     out->base = obj;
     out->value = value;
     INC_REF_COUNT(out);
@@ -29,7 +29,7 @@ BoaObject *add_BoaInteger(BoaObject *this, BoaObject *other) {
     bint_t thisvalue = getvalue_BoaInteger(_this);
     bint_t othervalue = getvalue_BoaInteger(_other);
 
-    return BOA_OBJ(malloc_BoaInteger(thisvalue + othervalue));
+    return BOA_OBJ(create_BoaInteger(thisvalue + othervalue));
 }
 
 char *tostring_BoaInteger(BoaObject *this) {
@@ -40,7 +40,7 @@ char *tostring_BoaInteger(BoaObject *this) {
     return value;
 }
 
-void free_BoaInteger(BoaInteger *o) {
+void destroy_BoaInteger(BoaInteger *o) {
     DEC_REF_COUNT(o);
     free(o);
     o = NULL;

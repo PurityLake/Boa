@@ -17,11 +17,11 @@ typedef struct {
     bint_t value;
 } BoaInteger;
 
-BoaInteger *malloc_BoaInteger(bint_t value);
+BoaInteger *create_BoaInteger(bint_t value);
 bint_t getvalue_BoaInteger(BoaInteger *o);
 BoaObject *add_BoaInteger(BoaObject *this, BoaObject *other);
 char *tostring_BoaInteger(BoaObject *this);
-void free_BoaInteger(BoaInteger *o);
+void destroy_BoaInteger(BoaInteger *o);
 
 #ifdef __cplusplus
 }

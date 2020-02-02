@@ -7,17 +7,18 @@
 int main(int argc, char **argv) {
     if (argc > 1) {
         if (strcmp(argv[1], "--object") == 0) {
-            BoaInteger *i = malloc_BoaInteger(2);
-            BoaInteger *j = malloc_BoaInteger(1);
-            BoaList *list = malloc_BoaList(32);
+            BoaInteger *i = create_BoaInteger(2);
+            BoaInteger *j = create_BoaInteger(1);
+            BoaList *list = create_BoaList(32);
             ADD_FUNC(list, i);
             ADD_FUNC(list, j);
             char *value = STR_FUNC(list);
             printf("%s\n", value);
             free(value);
-            free_BoaList(list);
-            free_BoaInteger(i);
-            free_BoaInteger(j);
+            destroy_BoaList(list);
+            printf("%lld\n", getvalue_BoaInteger(i));
+            destroy_BoaInteger(i);
+            destroy_BoaInteger(j);
         } else if (strcmp(argv[1], "--gc") == 0) {
             init_GC();
             int l = len_GC();

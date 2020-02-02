@@ -9,9 +9,9 @@ static BoaObjectImpl BoaListObjectImpl = {
     tostring_BoaList
 };
 
-BoaList *malloc_BoaList(bint_t capacity) {
+BoaList *create_BoaList(bint_t capacity) {
     BoaObject obj = { 0, &BoaListObjectImpl };
-    BoaList *out = (BoaList *)malloc(sizeof(BoaList));
+    BoaList *out = (BoaList *)malloc_GC(sizeof(BoaList));
     out->base = obj;
     out->capacity = capacity;
     out->length = 0;
@@ -24,7 +24,7 @@ BoaList *malloc_BoaList(bint_t capacity) {
     return out;
 }
 
-void free_BoaList(BoaList *o) {
+void destroy_BoaList(BoaList *o) {
     DEC_REF_COUNT(o);
     BoaObject **temp = o->value;
     while (*temp != NULL) {
