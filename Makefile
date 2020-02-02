@@ -1,15 +1,16 @@
 CC=gcc
 EXEXCUTABLE=boa
-CFLAGS=-Wall -pedantic
+CFLAGS=-Wall -pedantic -g
 INCLUDES=-I./include
 SRC_DIR=./src
-OBJS=lexer.o parser.o object.o main.o
+SRCS=$(wildcard $(SRC_DIR)/*.c)
+OBJS=$(subst $(SRC_DIR)/,,$(SRCS:.c=.o))
 
 %.o: $(SRC_DIR)/%.c
-	$(CC) -o $@ -c $< $(CFLAGS) $(INCLUDES) -g
+	$(CC) -o $@ -c $< $(CFLAGS) $(INCLUDES)
 
 all: $(OBJS)
-	$(CC) -o $(EXEXCUTABLE) $^ $(CFLAGS) $(INCLUDES) -g
+	$(CC) -o $(EXEXCUTABLE) $^ $(CFLAGS) $(INCLUDES)
 
 .PHONY: clean
 clean:

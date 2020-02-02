@@ -2,19 +2,22 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "parser.h"
-#include "object.h"
+#include "boa.h"
 
 int main(int argc, char **argv) {
     if (argc > 1) {
         if (strcmp(argv[1], "--object") == 0) {
             BoaInteger *i = malloc_BoaInteger(2);
             BoaInteger *j = malloc_BoaInteger(1);
-            BoaInteger *out = BOA_CAST_OBJ_TO(ADD_FUNC(i, j), BoaInteger);
-            printf("%llu\n", getvalue_BoaInteger(out));
+            BoaList *list = malloc_BoaList(32);
+            ADD_FUNC(list, i);
+            ADD_FUNC(list, j);
+            char *value = STR_FUNC(list);
+            printf("%s\n", value);
+            free(value);
+            free_BoaList(list);
             free_BoaInteger(i);
             free_BoaInteger(j);
-            free_BoaInteger(out);
         } else {
             FILE *prog = fopen(argv[1], "r");
             if (prog != NULL) {
