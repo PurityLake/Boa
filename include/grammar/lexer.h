@@ -63,8 +63,8 @@ static const _translation_table_entry _trans_table[] = {
 static const size_t TABLE_SIZE = sizeof(_trans_table) / sizeof(_translation_table_entry);
 
 Token  *create_token(int type, char *value, unsigned int line, unsigned int col);
-void    free_token(Token **tok);
-void    free_token_array(Token ***arr);
+void    free_token(Token *tok);
+void    free_token_array(Token **arr);
 Token **lex_line(const char *line_text, unsigned int lineno);
 
 int is_op(char c);

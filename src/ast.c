@@ -19,6 +19,13 @@ Node *create_node_with_parent(Token *token, Node *parent) {
     return out;
 }
 
+void free_node(Node *node) {
+    if (node == NULL) return;
+    free_node(node->left);
+    free(node);
+    free_node(node->right);
+}
+
 void print_node(Node *node) {
     if (node == NULL) return;
     print_node(node->left);

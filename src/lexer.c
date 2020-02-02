@@ -13,10 +13,11 @@ Token *create_token(int type, char *value, unsigned int line, unsigned int col) 
     return ret;
 }
 
-void free_token(Token **Token) {
-    free((*Token)->value);
-    (*Token)->value = NULL;
-    free(*Token);
+void free_token(Token *token) {
+    free(token->value);
+    token->value = NULL;
+    free(token);
+    token = NULL;
 }
 
 Token **create_token_array(unsigned int length) {
@@ -27,12 +28,13 @@ Token **create_token_array(unsigned int length) {
     return ret;
 }
 
-void free_token_array(Token ***arr) {
-    Token **a = *arr;
+void free_token_array(Token **arr) {
+    Token **a = arr;
     while ((*a) != NULL) {
-        free_token(a);
+        free_token(*a);
         ++a;
     }
+    free(arr);
 }
 
 Token *lexeme_to_token(const char *lexeme, int len, int lineno, int col) {

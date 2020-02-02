@@ -18,6 +18,7 @@ typedef struct _node {
 
 Node *create_node(Token *token);
 Node *create_node_with_parent(Token *token, Node *parent);
+void free_node(Node *node);
 void print_node(Node *node);
 
 #ifdef __cplusplus

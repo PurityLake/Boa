@@ -51,15 +51,11 @@ int main(int argc, char **argv) {
                     if (c == '\n' || feof(prog)) {
                         if (i > 0) {
                             Token **line = lex_line(line_str, lineno);
-                            
-                            //printf("%s\n", line_str);
                             Node *n = parse_line(line);
                             print_node(n);
                             printf("\n");
-
-                            //printf("\n");
-                            
-                            free_token_array(&line);
+                            free_node(n);
+                            free_token_array(line);
                             memset(line_str, '\0', i+1);
                             i = 0;
                         }
