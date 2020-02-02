@@ -59,15 +59,20 @@ char *tostring_BoaList(BoaObject *this) {
     char *value = (char *)malloc(100);
     char *iter = value;
     memset(value, '\0', 100);
-    int len = sprintf(iter, "[ ");
-    iter += len;
     BoaObject **temp = _this->value;
-    while (*temp != NULL) {
-        len = sprintf(iter, "%s, ", STR_FUNC(*temp));
+    if (*temp != NULL) {
+        int len = sprintf(iter, "[ %s",  STR_FUNC(*temp));
         iter += len;
         ++temp;
+        while (*temp != NULL) {
+            len = sprintf(iter, ", %s", STR_FUNC(*temp));
+            iter += len;
+            ++temp;
+        }
+        sprintf(iter, " ]");
+    } else {
+        sprintf(value, "[]");
     }
-    sprintf(iter, "]");
     value = (char *)realloc(value, strlen(value));
     return value;
 }
