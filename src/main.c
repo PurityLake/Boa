@@ -8,11 +8,13 @@
 int main(int argc, char **argv) {
     if (argc > 1) {
         if (strcmp(argv[1], "--object") == 0) {
-            ListObject *list = (ListObject *)malloc(sizeof(ListObject));
-            list->base.ref_count = 10;
-            Object *object = (Object *)list;
-            printf("%zu\n", object->ref_count);
-            free(list);
+            BoaList *list = malloc_BoaList(32);
+            BoaInteger *i = malloc_BoaInteger(42);
+            add_BoaList(list, i);
+            printf("%zu\n", GET_REF_COUNT(i));
+            free_BoaList(list);
+            printf("%zu\n", GET_REF_COUNT(i));
+            free_BoaInteger(i);
         } else {
             FILE *prog = fopen(argv[1], "r");
             if (prog != NULL) {

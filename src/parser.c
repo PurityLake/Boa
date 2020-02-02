@@ -1,5 +1,9 @@
 #include "parser.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void next_tok() {
     ++_curr;
 }
@@ -129,3 +133,7 @@ void parse_line(token **line) {
     _curr = line;
     block();
 }
+
+#ifdef __cplusplus
+}
+#endif

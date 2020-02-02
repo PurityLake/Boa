@@ -8,6 +8,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 enum {
     T_IDENT = 0,
     
@@ -60,5 +64,9 @@ void    free_token_array(token ***arr);
 token **lex_line(const char *line_text, unsigned int lineno);
 
 int is_op(char c);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __H_LEXER__ */

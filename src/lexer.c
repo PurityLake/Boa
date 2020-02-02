@@ -1,5 +1,9 @@
 #include "lexer.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 token *create_token(int type, char *value, unsigned int line, unsigned int col) {
     token *ret = (token *)malloc(sizeof(token));
     ret->type = type;
@@ -91,3 +95,7 @@ int is_op(char c) {
         c == '(' || c == ')' || c == '{' || c == '}' || c == ',' || c == '.') return 0;
     return -1;
 }
+
+#ifdef __cplusplus
+}
+#endif
