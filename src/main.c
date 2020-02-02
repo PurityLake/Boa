@@ -20,9 +20,21 @@ int main(int argc, char **argv) {
             free_BoaInteger(j);
         } else if (strcmp(argv[1], "--gc") == 0) {
             init_GC();
+            int l = len_GC();
+            printf("len before malloc: %d\n", l);
             for (int i = 0; i < 1000; ++i) {
-                (BoaInteger *)malloc_GC(sizeof(BoaInteger));
+                BoaInteger *bi = (BoaInteger *)malloc_GC(sizeof(BoaInteger));
+                bi->base.ref_count = 0;
+                bi->value = i;
+                if (i % 2 == 0) {
+                    INC_REF_COUNT(bi);
+                }
             }
+            l = len_GC();
+            printf("len before sweep: %d\n", l);
+            sweep_GC();
+            l = len_GC();
+            printf("len after sweep: %d\n", l);
             cleanup_GC();
         } else {
             FILE *prog = fopen(argv[1], "r");

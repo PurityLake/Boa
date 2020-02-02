@@ -1,5 +1,7 @@
 #include "gc.h"
 
+#include <stdio.h>
+
 #ifdef __cpluscplus
 extern "C" {
 #endif
@@ -20,7 +22,7 @@ void init_GC() {
     if (gc_started) return;
 
     global_reference_table.start = create_emtpy_rtentry();
-    gc_started = 1;
+    gc_started = gc_cleanup_needed = 1;
 }
 
 void *malloc_GC(size_t size) {
@@ -37,6 +39,44 @@ void *malloc_GC(size_t size) {
     curr = curr->next;
     curr->value = malloc(size);
     return curr->value;
+}
+
+void sweep_GC() {
+    if (!gc_started) return;
+    ReferenceTableEntry *curr = global_reference_table.start;
+    ReferenceTableEntry *prev = NULL;
+    while (curr != NULL) {
+        if (curr->value != NULL) {
+            if (GET_REF_COUNT(curr->value) == 0) {
+                free(curr->value);
+                curr->value = NULL;
+                if (prev == NULL) {
+                    curr = curr->next;
+                } else {
+                    prev->next = curr->next;
+                    free(curr);
+                    curr = prev->next;
+                }
+            } else {
+                prev = curr;
+                curr = curr->next;
+            }
+        } else {
+            break;
+        }
+    }
+}
+
+int len_GC() {
+    if (!gc_started) return -1;
+    int i = 0;
+    ReferenceTableEntry *curr = global_reference_table.start;
+    if (curr->value != NULL) ++i;
+    while (curr->next != NULL) {
+        curr = curr->next;
+        ++i;
+    }
+    return i;
 }
 
 void cleanup_GC() {

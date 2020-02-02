@@ -3,6 +3,8 @@
 
 #include <stdlib.h>
 
+#include "object.h"
+
 #ifdef __cpluscplus
 extern "C" {
 #endif
@@ -20,6 +22,8 @@ ReferenceTableEntry *create_emtpy_rtentry();
 
 void init_GC();
 void *malloc_GC(size_t size);
+void sweep_GC();
+int len_GC();
 void cleanup_GC();
 
 #ifdef __cpluscplus
