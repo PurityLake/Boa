@@ -32,8 +32,6 @@ void destroy_BoaList(BoaList *o) {
         ++temp;
     }
     free(o->value);
-    free(o);
-    o = NULL;
 }
 
 BoaObject *add_BoaList(BoaObject *this, BoaObject *other) {

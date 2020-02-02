@@ -7,6 +7,7 @@
 int main(int argc, char **argv) {
     if (argc > 1) {
         if (strcmp(argv[1], "--object") == 0) {
+            init_GC();
             BoaInteger *i = create_BoaInteger(2);
             BoaInteger *j = create_BoaInteger(1);
             BoaList *list = create_BoaList(32);
@@ -16,9 +17,15 @@ int main(int argc, char **argv) {
             printf("%s\n", value);
             free(value);
             destroy_BoaList(list);
+            int l = len_GC();
+            printf("Len before sweep: %d\n", l);
+            sweep_GC();
+            l = len_GC();
+            printf("Len after sweep: %d\n", l);
             printf("%lld\n", getvalue_BoaInteger(i));
             destroy_BoaInteger(i);
             destroy_BoaInteger(j);
+            cleanup_GC();
         } else if (strcmp(argv[1], "--gc") == 0) {
             init_GC();
             int l = len_GC();

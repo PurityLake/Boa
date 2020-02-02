@@ -42,8 +42,6 @@ char *tostring_BoaInteger(BoaObject *this) {
 
 void destroy_BoaInteger(BoaInteger *o) {
     DEC_REF_COUNT(o);
-    free(o);
-    o = NULL;
 }
 
 #ifdef __cplusplus
