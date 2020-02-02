@@ -4,7 +4,7 @@
 extern "C" {
 #endif
 
-static const char *class_name = "List";
+//static const char *class_name = "List";
 
 static BoaObjectImpl BoaListObjectImpl = {
     "List",
