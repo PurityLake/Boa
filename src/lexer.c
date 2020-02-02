@@ -1,4 +1,4 @@
-#include "lexer.h"
+#include "grammar/lexer.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -1,4 +1,4 @@
-#include "gc.h"
+#include "object/gc.h"
 
 #include <stdio.h>
 

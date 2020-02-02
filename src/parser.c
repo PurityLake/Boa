@@ -1,4 +1,4 @@
-#include "parser.h"
+#include "grammar/parser.h"
 
 #ifdef __cplusplus
 extern "C" {
