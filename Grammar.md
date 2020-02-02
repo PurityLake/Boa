@@ -1,3 +1,5 @@
+# Grammar
+
 Boa's grammar is similar in design to that of popular programming languages suchs as
 Python and Ruby. The program is split into a block that contains variable
 declarations, function definitions, class definitions and expressions that alter data
@@ -5,7 +7,6 @@ declarations, function definitions, class definitions and expressions that alter
 
 This grammar will be added to over time and is not a rigid definition of future
 language syntax.
-
 
 ```
 block   ::=  ( var_dec | func_def | class_def | expression ) +
