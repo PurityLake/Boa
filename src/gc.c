@@ -20,7 +20,6 @@ ReferenceTableEntry *create_emtpy_rtentry() {
 
 void init_GC() {
     if (gc_started) return;
-
     global_reference_table.start = create_emtpy_rtentry();
     gc_started = gc_cleanup_needed = 1;
 }
@@ -92,6 +91,7 @@ void cleanup_GC() {
             curr = curr->next;
             free(prev);
         }
+        gc_cleanup_needed = 0;
     }
 }
 
