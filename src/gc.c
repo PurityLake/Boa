@@ -11,19 +11,33 @@ static ReferenceTable global_reference_table;
 static int gc_cleanup_needed = 0;
 static int gc_started = 0;
 
+/* ReferenceTableEntry* reate_empty_rtentry
+ * ===============================================================================
+ * Simply creates new entry in reference table
+ */
 ReferenceTableEntry *create_emtpy_rtentry() {
-    ReferenceTableEntry *out = (ReferenceTableEntry *)malloc(sizeof(ReferenceTableEntry));
+    ReferenceTableEntry *out = (ReferenceTableEntry *)malloc(
+        sizeof(ReferenceTableEntry));
     out->value = NULL;
     out->next = NULL;
     return out;
 }
 
-void init_GC() {
+/* void init_GC
+ * ================================================================================
+ * Initialises the garbage collector, can only be run once
+ */
+void init_GC(void) {
     if (gc_started) return;
     global_reference_table.start = create_emtpy_rtentry();
     gc_started = gc_cleanup_needed = 1;
 }
 
+/* void* malloc_GC(size_t)
+ * ================================================================================
+ * Creates a new chunk of memory size `size` bytes. Adds
+ * size: size_t -> size of the memory to allocate in bytes
+ */
 void *malloc_GC(size_t size) {
     if (!gc_started) return NULL;
     ReferenceTableEntry *curr = global_reference_table.start;

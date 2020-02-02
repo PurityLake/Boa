@@ -30,7 +30,7 @@ typedef struct _boaobject BoaObject;
 // compare to primitives
 typedef int (*compare_method)(BoaObject *, void *);
 // compare to other BoaObjects
-typedef int (*rich_compare_method)(BoadObject *, BoadObject *)
+typedef int (*rich_compare_method)(BoaObject *, BoaObject *);
 // method that takes two operands
 typedef BoaObject* (*binary_method)(BoaObject *, BoaObject *);
 // method that take one operand
