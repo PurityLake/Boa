@@ -8,13 +8,13 @@
 int main(int argc, char **argv) {
     if (argc > 1) {
         if (strcmp(argv[1], "--object") == 0) {
-            BoaList *list = malloc_BoaList(32);
-            BoaInteger *i = malloc_BoaInteger(42);
-            add_BoaList(list, i);
-            printf("%zu\n", GET_REF_COUNT(i));
-            free_BoaList(list);
-            printf("%zu\n", GET_REF_COUNT(i));
+            BoaInteger *i = malloc_BoaInteger(2);
+            BoaInteger *j = malloc_BoaInteger(1);
+            BoaInteger *out = BOA_CAST_OBJ_TO(ADD_FUNC(i, j), BoaInteger);
+            printf("%llu\n", getvalue_BoaInteger(out));
             free_BoaInteger(i);
+            free_BoaInteger(j);
+            free_BoaInteger(out);
         } else {
             FILE *prog = fopen(argv[1], "r");
             if (prog != NULL) {

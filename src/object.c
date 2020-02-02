@@ -4,8 +4,12 @@
 extern "C" {
 #endif
 
+static BoaObjectImpl BoaIntegerObjectImpl = {
+    add_BoaInteger
+};
+
 BoaInteger *malloc_BoaInteger(bint_t value) {
-    BoaObject obj = { 0 };
+    BoaObject obj = { 0, &BoaIntegerObjectImpl };
     BoaInteger *out = (BoaInteger *)malloc(sizeof(BoaInteger));
     out->base = obj;
     out->value = value;
@@ -15,6 +19,16 @@ BoaInteger *malloc_BoaInteger(bint_t value) {
 
 bint_t getvalue_BoaInteger(BoaInteger *o) {
     return o->value;
+}
+
+BoaObject *add_BoaInteger(BoaObject *this, BoaObject *other) {
+    BoaInteger *_this = BOA_CAST_OBJ_TO(this, BoaInteger);
+    BoaInteger *_other = BOA_CAST_OBJ_TO(other, BoaInteger);
+
+    bint_t thisvalue = getvalue_BoaInteger(_this);
+    bint_t othervalue = getvalue_BoaInteger(_other);
+
+    return BOA_CAST_TO_OBJ(malloc_BoaInteger(thisvalue + othervalue));
 }
 
 void free_BoaInteger(BoaInteger *o) {
