@@ -25,12 +25,15 @@ typedef long long bint_t;
 
 typedef struct _boaobject BoaObject;
 
+typedef int (*compare_func)(BoaObject *, void *);
 typedef BoaObject* (*binary_func)(BoaObject *, BoaObject *);
 typedef char* (*unary_func)(BoaObject *);
 
 typedef struct {
+    char *class_name;
     binary_func add;
     unary_func to_string;
+    compare_func compare;
 } BoaObjectImpl;
 
 struct _boaobject {

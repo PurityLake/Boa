@@ -22,6 +22,7 @@ ReferenceTableEntry *create_emtpy_rtentry();
 
 void init_GC();
 void *malloc_GC(size_t size);
+void *ison_GC(void *o);
 void sweep_GC();
 int len_GC();
 void cleanup_GC();

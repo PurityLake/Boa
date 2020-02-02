@@ -4,9 +4,13 @@
 extern "C" {
 #endif
 
+static const char *class_name = "List";
+
 static BoaObjectImpl BoaListObjectImpl = {
+    "List",
     add_BoaList,
-    tostring_BoaList
+    tostring_BoaList,
+    compare_BoaList
 };
 
 BoaList *create_BoaList(bint_t capacity) {
@@ -52,6 +56,10 @@ BoaObject *add_BoaList(BoaObject *this, BoaObject *other) {
     INC_REF_COUNT(other);
 
     return this;
+}
+
+int compare_BoaList(BoaObject *this, void *other) {
+    return 0;
 }
 
 char *tostring_BoaList(BoaObject *this) {

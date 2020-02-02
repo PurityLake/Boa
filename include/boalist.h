@@ -21,6 +21,7 @@ typedef struct {
 BoaList *create_BoaList(bint_t capacity);
 BoaObject *add_BoaList(BoaObject *this, BoaObject *other);
 char *tostring_BoaList(BoaObject *this);
+int compare_BoaList(BoaObject *this, void *other);
 void destroy_BoaList(BoaList *o);
 
 #ifdef __cplusplus

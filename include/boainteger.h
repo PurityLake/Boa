@@ -21,6 +21,7 @@ BoaInteger *create_BoaInteger(bint_t value);
 bint_t getvalue_BoaInteger(BoaInteger *o);
 BoaObject *add_BoaInteger(BoaObject *this, BoaObject *other);
 char *tostring_BoaInteger(BoaObject *this);
+int compare_BoaInteger(BoaObject *this, void *other);
 void destroy_BoaInteger(BoaInteger *o);
 
 #ifdef __cplusplus

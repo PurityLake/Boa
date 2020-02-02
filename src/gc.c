@@ -40,6 +40,20 @@ void *malloc_GC(size_t size) {
     return curr->value;
 }
 
+void *ison_GC(void *o) {
+    if (!gc_started) return NULL;
+    ReferenceTableEntry *curr = global_reference_table.start;
+    while (curr != NULL) {
+        if (curr->value != NULL) {
+            if (EXPOSE_FUNC(curr->value)->compare(BOA_OBJ(curr->value), o)) {
+                return curr->value;
+            }
+        }
+        curr = curr->next;
+    }
+    return NULL;
+}
+
 void sweep_GC() {
     if (!gc_started) return;
     ReferenceTableEntry *curr = global_reference_table.start;

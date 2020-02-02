@@ -4,18 +4,27 @@
 extern "C" {
 #endif
 
+static const char *class_name = "Integer";
+
 static BoaObjectImpl BoaIntegerObjectImpl = {
+    "Integer",
     add_BoaInteger,
-    tostring_BoaInteger
+    tostring_BoaInteger,
+    compare_BoaInteger
 };
 
 BoaInteger *create_BoaInteger(bint_t value) {
-    BoaObject obj = { 0, &BoaIntegerObjectImpl };
-    BoaInteger *out = (BoaInteger *)malloc_GC(sizeof(BoaInteger));
-    out->base = obj;
-    out->value = value;
-    INC_REF_COUNT(out);
-    return out;
+    BoaInteger *fromGC = (BoaInteger *)ison_GC((void *)&value);
+    if (fromGC == NULL) {
+        BoaObject obj = { 0, &BoaIntegerObjectImpl };
+        BoaInteger *out = (BoaInteger *)malloc_GC(sizeof(BoaInteger));
+        out->base = obj;
+        out->value = value;
+        INC_REF_COUNT(out);
+        return out;
+    }
+    INC_REF_COUNT(fromGC);
+    return fromGC;
 }
 
 bint_t getvalue_BoaInteger(BoaInteger *o) {
@@ -38,6 +47,12 @@ char *tostring_BoaInteger(BoaObject *this) {
     sprintf(value, "%lld", getvalue_BoaInteger(_this));
     value = (char *)realloc(value, strlen(value));
     return value;
+}
+
+int compare_BoaInteger(BoaObject *this, void *other) {
+    BoaInteger *_this = (BoaInteger *)this;
+    int *otherprim = (int *)other;
+    return getvalue_BoaInteger(_this) == *otherprim;
 }
 
 void destroy_BoaInteger(BoaInteger *o) {
