@@ -15,7 +15,7 @@ BoaList *malloc_BoaList(bint_t capacity) {
     out->base = obj;
     out->capacity = capacity;
     out->length = 0;
-    BoaObject **value = (BoaObject **)calloc(sizeof(BoaObject*), capacity);
+    BoaObject **value = (BoaObject **)calloc(capacity, sizeof(BoaObject*));
     for (int i = 0; i < capacity; ++i) {
         value[i] = NULL;
     }

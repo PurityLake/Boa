@@ -18,6 +18,12 @@ int main(int argc, char **argv) {
             free_BoaList(list);
             free_BoaInteger(i);
             free_BoaInteger(j);
+        } else if (strcmp(argv[1], "--gc") == 0) {
+            init_GC();
+            for (int i = 0; i < 1000; ++i) {
+                (BoaInteger *)malloc_GC(sizeof(BoaInteger));
+            }
+            cleanup_GC();
         } else {
             FILE *prog = fopen(argv[1], "r");
             if (prog != NULL) {
