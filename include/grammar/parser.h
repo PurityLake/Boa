@@ -22,7 +22,8 @@ void number(Node *node);
 int op(Node *node, int give_error);
 void expression(Node *node);
 void param_list(Node *node);
-Node *parse_list(TokenList *list);
+void set_parser_tokens(TokenList *list);
+Node *parse_list();
 
 #ifdef __cplusplus
 }

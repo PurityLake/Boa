@@ -156,6 +156,7 @@ void param_list(Node *node) {
 
 Node *block() {
     if (_is_error) return NULL;
+    if (_curr == NULL) return NULL;
     Node *node = create_node(create_token(T_BLOCK, "BLOCK", _curr->token->line, _curr->token->col));
     node->left = create_node_with_parent(NULL, node);
     if (accept("var")) {
@@ -163,12 +164,17 @@ Node *block() {
         expect(";", "Line %d:%d: Excected ';' at the end of a statement!");
     } else if (accept("def")) {
         func_def(node);
+    } else {
+        return NULL;
     }
     return node;
 }
 
-Node *parse_list(TokenList *list) {
+void set_parser_tokens(TokenList *list) {
     _curr = list;
+}
+
+Node *parse_list() {
     return block();
 }
 
