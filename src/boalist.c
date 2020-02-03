@@ -69,11 +69,15 @@ char *tostring_BoaList(BoaObject *this) {
     char *iter = value;
     memset(value, '\0', 100);
     if (*temp != NULL) {
-        int len = sprintf(iter, "[ %s",  STR_FUNC(*temp));
+        char *out = STR_FUNC(*temp);
+        int len = sprintf(iter, "[ %s",  out);
+        free(out);
         iter += len;
         ++temp;
         while (*temp != NULL) {
-            len = sprintf(iter, ", %s", STR_FUNC(*temp));
+            out = STR_FUNC(*temp);
+            len = sprintf(iter, ", %s", out);
+            free(out);
             iter += len;
             ++temp;
         }
