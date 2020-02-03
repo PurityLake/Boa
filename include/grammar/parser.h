@@ -12,9 +12,6 @@
 extern "C" {
 #endif
 
-static int _is_error = 0;
-static Token **_curr;
-
 Node *block();
 
 void var_dec(Node *node);
@@ -25,7 +22,7 @@ void number(Node *node);
 int op(Node *node, int give_error);
 void expression(Node *node);
 void param_list(Node *node);
-Node *parse_line(Token**);
+Node *parse_list(TokenList *list);
 
 #ifdef __cplusplus
 }

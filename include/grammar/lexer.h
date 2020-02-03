@@ -2,9 +2,9 @@
 #define __H_LEXER__
 
 #define MAX_LEXEME_SIZE 128
-#define MAX_TOKENS_PER_LINE 128
 
 #include <ctype.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -37,6 +37,11 @@ typedef struct {
     char *value;
 } Token;
 
+typedef struct _tokenlist {
+    Token *token;
+    struct _tokenlist *prev, *next;
+} TokenList;
+
 typedef struct {
     int type;
     char *name;
@@ -64,8 +69,12 @@ static const size_t TABLE_SIZE = sizeof(_trans_table) / sizeof(_translation_tabl
 
 Token  *create_token(int type, char *value, unsigned int line, unsigned int col);
 void    free_token(Token *tok);
-void    free_token_array(Token **arr);
-Token **lex_line(const char *line_text, unsigned int lineno);
+
+TokenList *create_token_list();
+void add_to_token_list(TokenList *list, Token *token);
+void free_token_list(TokenList *list);
+
+TokenList *lex_file(FILE *filename);
 
 int is_op(char c);
 

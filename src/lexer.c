@@ -20,21 +20,37 @@ void free_token(Token *token) {
     token = NULL;
 }
 
-Token **create_token_array(unsigned int length) {
-    Token **ret = (Token**)malloc(sizeof(Token*) * length);
-    for (int i = 0; i < length; ++i) {
-        ret[i] = NULL;
-    }
-    return ret;
+TokenList *create_token_list() {
+    TokenList *out = (TokenList *)malloc(sizeof(TokenList));
+    out->token = NULL;
+    out->prev = NULL;
+    out->next = NULL;
+    return out;
 }
 
-void free_token_array(Token **arr) {
-    Token **a = arr;
-    while ((*a) != NULL) {
-        free_token(*a);
-        ++a;
+void add_to_token_list(TokenList *list, Token *token) {
+    if (list == NULL) return;
+    if (list->token == NULL) {
+        list->token = token;
+        list->next = create_token_list();
+        list->next->prev = list;
+    } else {
+        TokenList *temp = list;
+        while (temp->token != NULL) {
+            temp = temp->next;
+        }
+        temp->token = token;
+        temp->next = create_token_list();
+        temp->next->prev = temp;
     }
-    free(arr);
+}
+
+void free_token_list(TokenList *list) {
+    if (list->token != NULL) {
+        free_token_list(list->next);
+        free_token(list->token);
+    }
+    free(list);
 }
 
 Token *lexeme_to_token(const char *lexeme, int len, int lineno, int col) {
@@ -51,46 +67,53 @@ Token *lexeme_to_token(const char *lexeme, int len, int lineno, int col) {
     return create_token(T_IDENT, resized_lexeme, lineno, col);
 }
 
-Token **lex_line(const char *line_text, unsigned int lineno) {
-    Token **arr = create_token_array(MAX_TOKENS_PER_LINE);
+TokenList *lex_file(FILE *f) {
+    TokenList *list = create_token_list();
     char buf[MAX_LEXEME_SIZE];
+    int lineno = 0;
     int buf_idx = 0;
     int start_tok = 0;
     int line_idx = 0;
-    int i = 0;
     memset(buf, '\0', MAX_LEXEME_SIZE);
-    while (line_text[line_idx] != '\n' && line_text[line_idx] != '\0') {
-        if (isspace(line_text[line_idx])) {
+    while (!feof(f)) {
+        char c = fgetc(f);
+        if (isspace(c)) {
             if (buf_idx > 0) {
-                arr[i++] = lexeme_to_token(buf, buf_idx+1, lineno, (start_tok == -1) ? line_idx : start_tok);
+                //arr[i++] = lexeme_to_token(buf, buf_idx+1, lineno, (start_tok == -1) ? line_idx : start_tok);
+                add_to_token_list(list, lexeme_to_token(buf, buf_idx+1, lineno, (start_tok == -1) ? line_idx : start_tok));
                 memset(buf, '\0', buf_idx);
                 buf_idx = 0;
                 start_tok = -1;
             }
+            if (c == '\n') ++lineno;
         } else {
             if (start_tok == -1) start_tok = line_idx;
-            if (is_op(line_text[line_idx]) == 0) {
+            if (is_op(c) == 0) {
                 if (buf_idx > 0) {
-                    arr[i++] = lexeme_to_token(buf, buf_idx+1, lineno, start_tok);
+                    //arr[i++] = lexeme_to_token(buf, buf_idx+1, lineno, start_tok);
+                    add_to_token_list(list, lexeme_to_token(buf, buf_idx+1, lineno, start_tok));
                     memset(buf, '\0', buf_idx);
                     buf_idx = 0;
                 }
-                buf[buf_idx++] = line_text[line_idx];
-                arr[i++] = lexeme_to_token(buf, buf_idx+1, lineno, line_idx);
+                buf[buf_idx++] = c;
+                //arr[i++] = lexeme_to_token(buf, buf_idx+1, lineno, line_idx);
+                add_to_token_list(list, lexeme_to_token(buf, buf_idx+1, lineno, line_idx));
                 memset(buf, '\0', buf_idx);
                 buf_idx = 0;
                 start_tok = -1;
             } else {
-                buf[buf_idx++] = line_text[line_idx];
+                buf[buf_idx++] = c;
             }
         }
         ++line_idx;
     }
     if (buf_idx > 0) {
-        arr[i] = lexeme_to_token(buf, buf_idx+1, lineno, start_tok);
+        //arr[i] = lexeme_to_token(buf, buf_idx+1, lineno, start_tok);
+        add_to_token_list(list, lexeme_to_token(buf, buf_idx+1, lineno, start_tok));
     }
-    return arr;
+    return list;
 }
+
 
 int is_op(char c) {
     if (c == '*' || c == '/' || c == '+' || c == '-' || c == '=' || c == ';' ||

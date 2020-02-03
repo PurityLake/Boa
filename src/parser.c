@@ -4,8 +4,11 @@
 extern "C" {
 #endif
 
+static int _is_error = 0;
+static TokenList *_curr;
+
 void next_tok() {
-    ++_curr;
+    _curr = _curr->next;
 }
 
 void error(char *fmt, ...) {
@@ -18,8 +21,8 @@ void error(char *fmt, ...) {
 
 int accept(char *val) {
     if (_is_error) return 0;
-    if ((*_curr) == NULL) return 0;
-    if (strcmp((*_curr)->value, val) == 0) {
+    if (_curr->token == NULL) return 0;
+    if (strcmp(_curr->token->value, val) == 0) {
         next_tok();
         return 1;
     }
@@ -31,15 +34,15 @@ int expect(char *val, char *expected_fmt) {
     if (accept(val)) {
         return 1;
     }
-    --_curr;;
-    error(expected_fmt, (*_curr)->line, (*_curr)->col);
+    _curr = _curr->prev;
+    error(expected_fmt, _curr->token->line, _curr->token->col);
     return 0;
 }
 
 int accept_type(int type) {
     if (_is_error) return 0;
-    if ((*_curr) == NULL) return 0;
-    if ((*_curr)->type == type) {
+    if (_curr->token == NULL) return 0;
+    if (_curr->token->type == type) {
         next_tok();
         return 1;
     }
@@ -48,31 +51,31 @@ int accept_type(int type) {
 
 void ident(Node *node) {
     if (_is_error) return;
-    node->token = *_curr;
+    node->token = _curr->token;
     if (!accept_type(T_IDENT)) {
-        error("Invalud identifier: '%s'", (*_curr)->value);
+        error("Invalud identifier: '%s'", _curr->token->value);
         return;
     }
 }
 
 void number(Node *node) {
     if (_is_error) return;
-    size_t len = strlen((*_curr)->value);
+    size_t len = strlen(_curr->token->value);
     for (int i = 0; i < len; i++) {
-        if (!isdigit((*_curr)->value[i])) {
-            error("Invalid number: '%s'\n", (*_curr)->value);
+        if (!isdigit(_curr->token->value[i])) {
+            error("Invalid number: '%s'\n", _curr->token->value);
             return;
         }
     }
-    accept((*_curr)->value);
+    accept(_curr->token->value);
 }
 
 int op(Node *node, int give_error) {
     if (_is_error) return 0;
     if (accept("+") || accept("-") || accept("*") || accept("/") || accept("=")) {
-        if (give_error) error("Invalid op: '%s'\n", (*_curr)->value);
-        node->token = create_token((*(_curr - 1))->type, (*(_curr - 1))->value, 
-                            (*(_curr - 1))->line, (*(_curr - 1))->col);
+        if (give_error) error("Invalid op: '%s'\n", _curr->token->value);
+        node->token = create_token(_curr->prev->token->type, _curr->prev->token->value, 
+                            _curr->prev->token->line, _curr->prev->token->col);
         return 1;
     }
     node->token = NULL;
@@ -98,12 +101,12 @@ void expression(Node *node) {
 
 void var_dec(Node *node) {
     if (_is_error) return;
-    node->left->token = create_token(T_VAR_DEC, "VAR_DEC", (*_curr)->line, (*_curr)->col);
+    node->left->token = create_token(T_VAR_DEC, "VAR_DEC", _curr->token->line, _curr->token->col);
     node = node->left;
     Node *i = create_node_with_parent(NULL, node);
     ident(i);
     if (expect("=", "Line %d:%d: Expected a '=' in variable declation!")) {
-        node->left = create_node_with_parent(create_token(T_EQ, "=", (*(_curr - 1))->line, (*(_curr - 1))->col), node);
+        node->left = create_node_with_parent(create_token(T_EQ, "=", _curr->prev->token->line, _curr->prev->token->col), node);
         node = node->left;
         node->left = create_node_with_parent(i->token, node);
         node->right = create_node_with_parent(NULL, node);
@@ -112,7 +115,7 @@ void var_dec(Node *node) {
 }
 
 void func_def(Node *node) {
-    node->left->token = create_token(T_FUNC_DEF, "FUNC_DEF", (*_curr)->line, (*_curr)->col);
+    node->left->token = create_token(T_FUNC_DEF, "FUNC_DEF", _curr->token->line, _curr->token->col);
     node = node->left;
     Node *i = create_node_with_parent(NULL, node);
     Node *p = create_node_with_parent(NULL, i);
@@ -125,13 +128,13 @@ void func_def(Node *node) {
 void param_list(Node *node) {
     if (_is_error) return;
     expect("(", "Line %d:%d: Excected ')' at the start of a parameter list.");
-    node->token = create_token(T_PARAM_LIST, "PARAM_LIST", (*_curr)->line, (*_curr)->col);
+    node->token = create_token(T_PARAM_LIST, "PARAM_LIST", _curr->token->line, _curr->token->col);
     Node *i = create_node_with_parent(NULL, node);
-    while ((*_curr)->type != T_RPAREN) {
+    while (_curr->token->type != T_RPAREN) {
         ident(i);
         if (accept("=")) {
             Node *split = create_node_with_parent(create_token(T_SPLIT, "", -1, -1), node);
-            Node *op = create_node_with_parent(*(_curr - 1), split);
+            Node *op = create_node_with_parent(_curr->prev->token, split);
             Node *j = create_node_with_parent(NULL, op);
             i->parent = op;
             ident(j);
@@ -153,7 +156,7 @@ void param_list(Node *node) {
 
 Node *block() {
     if (_is_error) return NULL;
-    Node *node = create_node(create_token(T_BLOCK, "BLOCK", (*_curr)->line, (*_curr)->col));
+    Node *node = create_node(create_token(T_BLOCK, "BLOCK", _curr->token->line, _curr->token->col));
     node->left = create_node_with_parent(NULL, node);
     if (accept("var")) {
         var_dec(node);
@@ -164,8 +167,8 @@ Node *block() {
     return node;
 }
 
-Node *parse_line(Token **line) {
-    _curr = line;
+Node *parse_list(TokenList *list) {
+    _curr = list;
     return block();
 }
 

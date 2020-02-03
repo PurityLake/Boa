@@ -41,6 +41,13 @@ int main(int argc, char **argv) {
         } else {
             FILE *prog = fopen(argv[1], "r");
             if (prog != NULL) {
+                TokenList *list = lex_file(prog);
+                Node *n = parse_list(list);
+                print_node(n);
+                printf("\n");
+                free_node(n);
+                free_token_list(list);
+                /*
                 int i = 0;
                 int lineno = 1;
                 char line_str[128];
@@ -50,12 +57,12 @@ int main(int argc, char **argv) {
                     char c = fgetc(prog);
                     if (c == '\n' || feof(prog)) {
                         if (i > 0) {
-                            Token **line = lex_line(line_str, lineno);
-                            Node *n = parse_line(line);
+                            TokenList *line = lex_line(line_str, lineno);
+                            Node *n = parse_list(line);
                             print_node(n);
                             printf("\n");
                             free_node(n);
-                            free_token_array(line);
+                            free_token_list(line);
                             memset(line_str, '\0', i+1);
                             i = 0;
                         }
@@ -68,6 +75,7 @@ int main(int argc, char **argv) {
                         }
                     }
                 }
+                */
                 fclose(prog);
             } else {
                 fprintf(stderr, "Failed to open file '%s'\n", argv[1]);
