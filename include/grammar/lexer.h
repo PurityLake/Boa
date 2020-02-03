@@ -27,6 +27,7 @@ enum {
     T_MULT, T_PLUS, T_MINUS, T_DIV, T_EQ, T_SEMI,
     T_OPS_END,
 
+    T_PARSER_START,
     T_BLOCK, T_VAR_DEC, T_FUNC_DEF, T_PARAM_LIST, T_SPLIT
 };
 

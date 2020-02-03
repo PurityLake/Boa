@@ -70,33 +70,35 @@ Token *lexeme_to_token(const char *lexeme, int len, int lineno, int col) {
 TokenList *lex_file(FILE *f) {
     TokenList *list = create_token_list();
     char buf[MAX_LEXEME_SIZE];
-    int lineno = 0;
+    int lineno = 1;
     int buf_idx = 0;
     int start_tok = 0;
     int line_idx = 0;
     memset(buf, '\0', MAX_LEXEME_SIZE);
     while (!feof(f)) {
         char c = fgetc(f);
+        if (c == EOF) break;
         if (isspace(c)) {
             if (buf_idx > 0) {
-                //arr[i++] = lexeme_to_token(buf, buf_idx+1, lineno, (start_tok == -1) ? line_idx : start_tok);
                 add_to_token_list(list, lexeme_to_token(buf, buf_idx+1, lineno, (start_tok == -1) ? line_idx : start_tok));
                 memset(buf, '\0', buf_idx);
                 buf_idx = 0;
                 start_tok = -1;
             }
-            if (c == '\n') ++lineno;
+            if (c == '\n') {
+                buf_idx = 0;
+                start_tok = -1;
+                ++lineno;
+            }
         } else {
             if (start_tok == -1) start_tok = line_idx;
             if (is_op(c) == 0) {
                 if (buf_idx > 0) {
-                    //arr[i++] = lexeme_to_token(buf, buf_idx+1, lineno, start_tok);
                     add_to_token_list(list, lexeme_to_token(buf, buf_idx+1, lineno, start_tok));
                     memset(buf, '\0', buf_idx);
                     buf_idx = 0;
                 }
                 buf[buf_idx++] = c;
-                //arr[i++] = lexeme_to_token(buf, buf_idx+1, lineno, line_idx);
                 add_to_token_list(list, lexeme_to_token(buf, buf_idx+1, lineno, line_idx));
                 memset(buf, '\0', buf_idx);
                 buf_idx = 0;
@@ -108,7 +110,6 @@ TokenList *lex_file(FILE *f) {
         ++line_idx;
     }
     if (buf_idx > 0) {
-        //arr[i] = lexeme_to_token(buf, buf_idx+1, lineno, start_tok);
         add_to_token_list(list, lexeme_to_token(buf, buf_idx+1, lineno, start_tok));
     }
     return list;

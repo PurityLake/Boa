@@ -21,7 +21,7 @@ void error(char *fmt, ...) {
 
 int accept(char *val) {
     if (_is_error) return 0;
-    if (_curr->token == NULL) return 0;
+    if (_curr == NULL || _curr->token == NULL) return 0;
     if (strcmp(_curr->token->value, val) == 0) {
         next_tok();
         return 1;
@@ -123,11 +123,21 @@ void func_def(Node *node) {
     param_list(p);
     node->left = i;
     node->left->left = p;
+    expect("begin", "Line %d:%d: Expected a 'begin' at beginning of function definition!\n");
+    node = node->right = create_node_with_parent(create_token(T_SPLIT, "", -1, -1), node);
+    node->right = block();
+    while(node->right != NULL) {
+        node->right->parent = node;
+        node->left = create_node_with_parent(create_token(T_SPLIT, "", -1, -1), node);
+        node = node->left;
+        node->right = block();
+    }
+    expect("end", "Line %d:%d: Expected a 'end' at end of function definition!\n");
 }
 
 void param_list(Node *node) {
     if (_is_error) return;
-    expect("(", "Line %d:%d: Excected ')' at the start of a parameter list.");
+    expect("(", "Line %d:%d: Excected ')' at the start of a parameter list.\n");
     node->token = create_token(T_PARAM_LIST, "PARAM_LIST", _curr->token->line, _curr->token->col);
     Node *i = create_node_with_parent(NULL, node);
     while (_curr->token->type != T_RPAREN) {
@@ -156,7 +166,7 @@ void param_list(Node *node) {
 
 Node *block() {
     if (_is_error) return NULL;
-    if (_curr == NULL) return NULL;
+    if (_curr == NULL || _curr->next == NULL) return NULL;
     Node *node = create_node(create_token(T_BLOCK, "BLOCK", _curr->token->line, _curr->token->col));
     node->left = create_node_with_parent(NULL, node);
     if (accept("var")) {
