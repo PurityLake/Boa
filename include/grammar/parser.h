@@ -17,13 +17,14 @@ static Token **_curr;
 
 Node *block();
 
+void var_dec(Node *node);
+void func_def(Node *node);
+
 void ident(Node *node);
 void number(Node *node);
 int op(Node *node, int give_error);
 void expression(Node *node);
-void var_dec(Node *node);
 void param_list(Node *node);
-void func_dec(Node *node);
 Node *parse_line(Token**);
 
 #ifdef __cplusplus

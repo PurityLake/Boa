@@ -111,23 +111,44 @@ void var_dec(Node *node) {
     }
 }
 
+void func_def(Node *node) {
+    node->left->token = create_token(T_FUNC_DEF, "FUNC_DEF", (*_curr)->line, (*_curr)->col);
+    node = node->left;
+    Node *i = create_node_with_parent(NULL, node);
+    Node *p = create_node_with_parent(NULL, i);
+    ident(i);
+    param_list(p);
+    node->left = i;
+    node->left->left = p;
+}
+
 void param_list(Node *node) {
     if (_is_error) return;
     expect("(", "Line %d:%d: Excected ')' at the start of a parameter list.");
+    node->token = create_token(T_PARAM_LIST, "PARAM_LIST", (*_curr)->line, (*_curr)->col);
+    Node *i = create_node_with_parent(NULL, node);
     while ((*_curr)->type != T_RPAREN) {
-        ident(node);
-        if (accept(",")) continue;
+        ident(i);
         if (accept("=")) {
-            ident(node);
+            Node *split = create_node_with_parent(create_token(T_SPLIT, "", -1, -1), node);
+            Node *op = create_node_with_parent(*(_curr - 1), split);
+            Node *j = create_node_with_parent(NULL, op);
+            i->parent = op;
+            ident(j);
+            split->right = op;
+            op->left = j;
+            op->right = i;
+            node->left = split;
+            node = node->left;
+            i = create_node_with_parent(NULL, node);
+        } else {
+            node->left = i;
+            node = node->left;
+            i = create_node_with_parent(NULL, node);
         }
+        if (accept(",")) continue;
     }
     expect(")", "Line %d:%d: Excected ')' at the end of a parameter list.");
-}
-
-void func_dec(Node *node) {
-    if (_is_error) return;
-    ident(node);
-    param_list(node);
 }
 
 Node *block() {
@@ -138,7 +159,7 @@ Node *block() {
         var_dec(node);
         expect(";", "Line %d:%d: Excected ';' at the end of a statement!");
     } else if (accept("def")) {
-        func_dec(node);
+        func_def(node);
     }
     return node;
 }

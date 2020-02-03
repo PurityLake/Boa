@@ -26,15 +26,34 @@ void free_node(Node *node) {
     free_node(node->right);
 }
 
-void print_node(Node *node) {
+void print_nodel(Node *node) {
     if (node == NULL) return;
-    print_node(node->left);
+    print_nodel(node->left);
     if (node->token != NULL) {
         printf("%s ", node->token->value);
         fflush(stdout);
     }
-    print_node(node->right);
+    print_nodel(node->right);
     fflush(stdout);
+}
+
+void print_noder(Node *node) {
+    if (node == NULL) return;
+    print_noder(node->right);
+    if (node->token != NULL) {
+        printf("%s ", node->token->value);
+        fflush(stdout);
+    }
+    print_noder(node->left);
+    fflush(stdout);
+}
+
+void print_node(Node *node) {
+    if (node->left != NULL && node->left->token->type == T_FUNC_DEF) {
+        print_noder(node);
+    } else {
+        print_nodel(node);
+    }
 }
 
 #ifdef __cplusplus
