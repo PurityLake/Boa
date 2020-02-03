@@ -52,10 +52,7 @@ int accept_type(int type) {
 void ident(Node *node) {
     if (_is_error) return;
     node->token = _curr->token;
-    if (!accept_type(T_IDENT)) {
-        error("Invalud identifier: '%s'", _curr->token->value);
-        return;
-    }
+    if (!accept_type(T_IDENT)) error("Invalud identifier: '%s'", _curr->token->value);
 }
 
 void number(Node *node) {
@@ -70,12 +67,10 @@ void number(Node *node) {
     accept(_curr->token->value);
 }
 
-int op(Node *node, int give_error) {
+int op(Node *node) {
     if (_is_error) return 0;
     if (accept("+") || accept("-") || accept("*") || accept("/") || accept("=")) {
-        if (give_error) error("Invalid op: '%s'\n", _curr->token->value);
-        node->token = create_Token(_curr->prev->token->type, _curr->prev->token->value, 
-                            _curr->prev->token->line, _curr->prev->token->col);
+        node->token = _curr->prev->token;
         return 1;
     }
     node->token = NULL;
@@ -87,8 +82,9 @@ void expression(Node *node) {
     Node *i = create_with_parent_Node(NULL, node);
     Node *o = create_with_parent_Node(NULL, node);
     ident(i);
-    while (op(o, 0)) {
+    while (op(o)) {
         node->token = o->token;
+        free(o);
         node->left = i;
         node->right = create_with_parent_Node(NULL, node);
         node = node->right;
@@ -96,26 +92,29 @@ void expression(Node *node) {
         o = create_with_parent_Node(NULL, node);
         ident(i);
     }
+    if (o != NULL) free(o);
     node->left = i;
 }
 
 void var_dec(Node *node) {
     if (_is_error) return;
+    node->left = create_with_parent_Node(NULL, node);
     node->left->token = create_Token(T_VAR_DEC, "VAR_DEC", _curr->token->line, _curr->token->col);
     node = node->left;
     Node *i = create_with_parent_Node(NULL, node);
     ident(i);
     if (expect("=", "Line %d:%d: Expected a '=' in variable declation!")) {
-        node->left = create_with_parent_Node(create_Token(T_EQ, "=", _curr->prev->token->line, _curr->prev->token->col), node);
+        node->left = create_with_parent_Node(_curr->prev->token, node);
         node = node->left;
-        node->left = create_with_parent_Node(i->token, node);
+        i->parent = node;
+        node->left = i;
         node->right = create_with_parent_Node(NULL, node);
         expression(node->right);
     }
 }
 
 void func_def(Node *node) {
-    node->left->token = create_Token(T_FUNC_DEF, "FUNC_DEF", _curr->token->line, _curr->token->col);
+    node->left = create_with_parent_Node(create_Token(T_FUNC_DEF, "FUNC_DEF", _curr->token->line, _curr->token->col), node);
     node = node->left;
     Node *i = create_with_parent_Node(NULL, node);
     Node *p = create_with_parent_Node(NULL, i);
@@ -124,7 +123,8 @@ void func_def(Node *node) {
     node->left = i;
     node->left->left = p;
     expect("begin", "Line %d:%d: Expected a 'begin' at beginning of function definition!\n");
-    node = node->right = create_with_parent_Node(create_Token(T_SPLIT, "", -1, -1), node);
+    node->right = create_with_parent_Node(create_Token(T_SPLIT, "", -1, -1), node);
+    node = node->right;
     node->right = block();
     while(node->right != NULL) {
         node->right->parent = node;
@@ -159,8 +159,9 @@ void param_list(Node *node) {
             node = node->left;
             i = create_with_parent_Node(NULL, node);
         }
-        if (accept(",")) continue;
+        accept(",");
     }
+    if (i != NULL) free(i);
     expect(")", "Line %d:%d: Excected ')' at the end of a parameter list.");
 }
 
@@ -168,13 +169,13 @@ Node *block() {
     if (_is_error) return NULL;
     if (_curr == NULL || _curr->next == NULL) return NULL;
     Node *node = create_Node(create_Token(T_BLOCK, "BLOCK", _curr->token->line, _curr->token->col));
-    node->left = create_with_parent_Node(NULL, node);
     if (accept("var")) {
         var_dec(node);
         expect(";", "Line %d:%d: Excected ';' at the end of a statement!");
     } else if (accept("def")) {
         func_def(node);
     } else {
+        free_Node(node);
         return NULL;
     }
     return node;

@@ -22,8 +22,11 @@ Node *create_with_parent_Node(Token *token, Node *parent) {
 void free_Node(Node *node) {
     if (node == NULL) return;
     free_Node(node->left);
-    free(node);
+    if (node->token != NULL && node->token->type > T_PARSER_START) {
+        free_nostr_Token(node->token);
+    }
     free_Node(node->right);
+    free(node);
 }
 
 void print_nodel(Node *node) {

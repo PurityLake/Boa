@@ -20,7 +20,7 @@ enum {
     
     // keywords section
     T_KEYWORDS_START,
-    T_DEF, T_IF, T_VAR,
+    T_DEF, T_IF, T_VAR, T_BEGIN,
     T_KEYWORDS_END,
 
     // operators section
@@ -65,6 +65,7 @@ typedef struct _tokenlist {
 
 Token *create_Token(int type, char *value, unsigned int line, unsigned int col);
 void free_Token(Token *tok);
+void free_nostr_Token(Token *tok);
 
 TokenList *create_TokenList();
 void add_to_TokenList(TokenList *list, Token *token);

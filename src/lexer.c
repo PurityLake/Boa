@@ -13,6 +13,7 @@ static const _translation_table_entry _trans_table[] = {
     { T_DEF,    "def" },
     { T_IF,     "if" },
     { T_VAR,    "var" },
+    { T_BEGIN,  "begin" },
     { T_LPAREN, "(" },
     { T_RPAREN, ")" },
     { T_LCURL,  "{" },
@@ -47,6 +48,11 @@ Token *create_Token(int type, char *value, unsigned int line, unsigned int col) 
 void free_Token(Token *token) {
     free(token->value);
     token->value = NULL;
+    free(token);
+    token = NULL;
+}
+
+void free_nostr_Token(Token *token) {
     free(token);
     token = NULL;
 }
@@ -117,8 +123,6 @@ TokenList *lex_file(FILE *f) {
                 start_tok = -1;
             }
             if (c == '\n') {
-                buf_idx = 0;
-                start_tok = -1;
                 ++lineno;
             }
         } else {

@@ -19,7 +19,7 @@ void func_def(Node *node);
 
 void ident(Node *node);
 void number(Node *node);
-int op(Node *node, int give_error);
+int op(Node *node);
 void expression(Node *node);
 void param_list(Node *node);
 void set_parser_tokens(TokenList *list);

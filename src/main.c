@@ -50,6 +50,7 @@ int main(int argc, char **argv) {
                     free_Node(n);
                     n = parse_list();
                 }
+                free_Node(n);
                 free_TokenList(list);
                 fclose(prog);
             } else {
@@ -57,5 +58,6 @@ int main(int argc, char **argv) {
             }
         }
     }
+    getchar();
     return 0;
 }
