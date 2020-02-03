@@ -16,10 +16,10 @@ typedef struct _node {
     struct _node *left, *right;
 } Node;
 
-Node *create_node(Token *token);
-Node *create_node_with_parent(Token *token, Node *parent);
-void free_node(Node *node);
-void print_node(Node *node);
+Node *create_Node(Token *token);
+Node *create_with_parent_Node(Token *token, Node *parent);
+void free_Node(Node *node);
+void print_Node(Node *node);
 
 #ifdef __cplusplus
 }

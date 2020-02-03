@@ -15,22 +15,34 @@ extern "C" {
 typedef unsigned opcode_t;
 
 enum {
+    // identifier
     T_IDENT = 0,
     
+    // keywords section
     T_KEYWORDS_START,
     T_DEF, T_IF, T_VAR,
     T_KEYWORDS_END,
 
+    // operators section
     T_OPS_START,
     T_LPAREN, T_RPAREN, T_LCURL, T_RCURL,
     T_COMMA, T_DOT,
     T_MULT, T_PLUS, T_MINUS, T_DIV, T_EQ, T_SEMI,
     T_OPS_END,
 
+    // used by the parser
     T_PARSER_START,
     T_BLOCK, T_VAR_DEC, T_FUNC_DEF, T_PARAM_LIST, T_SPLIT
 };
 
+/* Token
+ * =================================================================================
+ * Basic building block passed on to the parser.
+ * type -> the type of the lexeme defined by an enum
+ * line -> the line number of the token
+ * col -> the column where the token starts
+ * value -> the string representation of the lexeme
+ */
 typedef struct {
     opcode_t type;
     unsigned int line;
@@ -38,46 +50,28 @@ typedef struct {
     char *value;
 } Token;
 
+/* TokenList
+ * =================================================================================
+ * A doubly linked list that contains a token. This is used by the program to keep
+ * an easily transervable list of all the tokens in a file
+ * token -> the token of the current index
+ * prev -> previous token in the list
+ * next -> next token in the list
+ */
 typedef struct _tokenlist {
     Token *token;
     struct _tokenlist *prev, *next;
 } TokenList;
 
-typedef struct {
-    int type;
-    char *name;
-} _translation_table_entry;
+Token *create_Token(int type, char *value, unsigned int line, unsigned int col);
+void free_Token(Token *tok);
 
-static const _translation_table_entry _trans_table[] = {
-    { T_DEF,    "def" },
-    { T_IF,     "if" },
-    { T_VAR,    "var" },
-    { T_LPAREN, "(" },
-    { T_RPAREN, ")" },
-    { T_LCURL,  "{" },
-    { T_RCURL,  "}" }, 
-    { T_COMMA,  "," },
-    { T_DOT,    "." },
-    { T_MULT,   "*" },
-    { T_PLUS,   "+" },
-    { T_MINUS,  "-" },
-    { T_DIV,    "/" },
-    { T_EQ,     "=" },
-    { T_SEMI,   ";" }
-};
+TokenList *create_TokenList();
+void add_to_TokenList(TokenList *list, Token *token);
+void free_TokenList(TokenList *list);
 
-static const size_t TABLE_SIZE = sizeof(_trans_table) / sizeof(_translation_table_entry);
-
-Token  *create_token(int type, char *value, unsigned int line, unsigned int col);
-void    free_token(Token *tok);
-
-TokenList *create_token_list();
-void add_to_token_list(TokenList *list, Token *token);
-void free_token_list(TokenList *list);
-
+// Takes a file as an argument and tokenises the contents
 TokenList *lex_file(FILE *filename);
-
-int is_op(char c);
 
 #ifdef __cplusplus
 }

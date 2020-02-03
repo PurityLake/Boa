@@ -4,7 +4,7 @@
 extern "C" {
 #endif
 
-Node *create_node(Token *token) {
+Node *create_Node(Token *token) {
     Node *out = (Node *)malloc(sizeof(Node));
     out->token = token;
     out->parent = NULL;
@@ -13,17 +13,17 @@ Node *create_node(Token *token) {
     return out;
 }
 
-Node *create_node_with_parent(Token *token, Node *parent) {
-    Node *out = create_node(token);
+Node *create_with_parent_Node(Token *token, Node *parent) {
+    Node *out = create_Node(token);
     out->parent = parent;
     return out;
 }
 
-void free_node(Node *node) {
+void free_Node(Node *node) {
     if (node == NULL) return;
-    free_node(node->left);
+    free_Node(node->left);
     free(node);
-    free_node(node->right);
+    free_Node(node->right);
 }
 
 void print_nodel(Node *node) {
@@ -61,7 +61,7 @@ void print_noder(Node *node) {
     fflush(stdout);
 }
 
-void print_node(Node *node) {
+void print_Node(Node *node) {
     if (node->left != NULL && node->left->token->type == T_FUNC_DEF) {
         print_noder(node);
     } else {

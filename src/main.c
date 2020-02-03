@@ -45,12 +45,12 @@ int main(int argc, char **argv) {
                 set_parser_tokens(list);
                 Node *n = parse_list();
                 while (n != NULL) {
-                    print_node(n);
+                    print_Node(n);
                     printf("\n");
-                    free_node(n);
+                    free_Node(n);
                     n = parse_list();
                 }
-                free_token_list(list);
+                free_TokenList(list);
                 fclose(prog);
             } else {
                 fprintf(stderr, "Failed to open file '%s'\n", argv[1]);

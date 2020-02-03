@@ -4,7 +4,38 @@
 extern "C" {
 #endif
 
-Token *create_token(int type, char *value, unsigned int line, unsigned int col) {
+typedef struct {
+    int type;
+    char *name;
+} _translation_table_entry;
+
+static const _translation_table_entry _trans_table[] = {
+    { T_DEF,    "def" },
+    { T_IF,     "if" },
+    { T_VAR,    "var" },
+    { T_LPAREN, "(" },
+    { T_RPAREN, ")" },
+    { T_LCURL,  "{" },
+    { T_RCURL,  "}" }, 
+    { T_COMMA,  "," },
+    { T_DOT,    "." },
+    { T_MULT,   "*" },
+    { T_PLUS,   "+" },
+    { T_MINUS,  "-" },
+    { T_DIV,    "/" },
+    { T_EQ,     "=" },
+    { T_SEMI,   ";" }
+};
+
+static const size_t TABLE_SIZE = sizeof(_trans_table) / sizeof(_translation_table_entry);
+
+int is_op(char c) {
+    if (c == '*' || c == '/' || c == '+' || c == '-' || c == '=' || c == ';' ||
+        c == '(' || c == ')' || c == '{' || c == '}' || c == ',' || c == '.') return 1;
+    return 0;
+}
+
+Token *create_Token(int type, char *value, unsigned int line, unsigned int col) {
     Token *ret = (Token *)malloc(sizeof(Token));
     ret->type = type;
     ret->line = line;
@@ -13,14 +44,14 @@ Token *create_token(int type, char *value, unsigned int line, unsigned int col) 
     return ret;
 }
 
-void free_token(Token *token) {
+void free_Token(Token *token) {
     free(token->value);
     token->value = NULL;
     free(token);
     token = NULL;
 }
 
-TokenList *create_token_list() {
+TokenList *create_TokenList() {
     TokenList *out = (TokenList *)malloc(sizeof(TokenList));
     out->token = NULL;
     out->prev = NULL;
@@ -28,11 +59,11 @@ TokenList *create_token_list() {
     return out;
 }
 
-void add_to_token_list(TokenList *list, Token *token) {
+void add_to_TokenList(TokenList *list, Token *token) {
     if (list == NULL) return;
     if (list->token == NULL) {
         list->token = token;
-        list->next = create_token_list();
+        list->next = create_TokenList();
         list->next->prev = list;
     } else {
         TokenList *temp = list;
@@ -40,15 +71,15 @@ void add_to_token_list(TokenList *list, Token *token) {
             temp = temp->next;
         }
         temp->token = token;
-        temp->next = create_token_list();
+        temp->next = create_TokenList();
         temp->next->prev = temp;
     }
 }
 
-void free_token_list(TokenList *list) {
+void free_TokenList(TokenList *list) {
     if (list->token != NULL) {
-        free_token_list(list->next);
-        free_token(list->token);
+        free_TokenList(list->next);
+        free_Token(list->token);
     }
     free(list);
 }
@@ -61,14 +92,14 @@ Token *lexeme_to_token(const char *lexeme, int len, int lineno, int col) {
     for (int i = 0; i < TABLE_SIZE; ++i) {
         _translation_table_entry entry = _trans_table[i];
         if (strcmp(resized_lexeme, entry.name) == 0) {
-            return create_token(entry.type, resized_lexeme, lineno, col);
+            return create_Token(entry.type, resized_lexeme, lineno, col);
         }
     }
-    return create_token(T_IDENT, resized_lexeme, lineno, col);
+    return create_Token(T_IDENT, resized_lexeme, lineno, col);
 }
 
 TokenList *lex_file(FILE *f) {
-    TokenList *list = create_token_list();
+    TokenList *list = create_TokenList();
     char buf[MAX_LEXEME_SIZE];
     int lineno = 1;
     int buf_idx = 0;
@@ -80,7 +111,7 @@ TokenList *lex_file(FILE *f) {
         if (c == EOF) break;
         if (isspace(c)) {
             if (buf_idx > 0) {
-                add_to_token_list(list, lexeme_to_token(buf, buf_idx+1, lineno, (start_tok == -1) ? line_idx : start_tok));
+                add_to_TokenList(list, lexeme_to_token(buf, buf_idx+1, lineno, (start_tok == -1) ? line_idx : start_tok));
                 memset(buf, '\0', buf_idx);
                 buf_idx = 0;
                 start_tok = -1;
@@ -92,14 +123,14 @@ TokenList *lex_file(FILE *f) {
             }
         } else {
             if (start_tok == -1) start_tok = line_idx;
-            if (is_op(c) == 0) {
+            if (is_op(c)) {
                 if (buf_idx > 0) {
-                    add_to_token_list(list, lexeme_to_token(buf, buf_idx+1, lineno, start_tok));
+                    add_to_TokenList(list, lexeme_to_token(buf, buf_idx+1, lineno, start_tok));
                     memset(buf, '\0', buf_idx);
                     buf_idx = 0;
                 }
                 buf[buf_idx++] = c;
-                add_to_token_list(list, lexeme_to_token(buf, buf_idx+1, lineno, line_idx));
+                add_to_TokenList(list, lexeme_to_token(buf, buf_idx+1, lineno, line_idx));
                 memset(buf, '\0', buf_idx);
                 buf_idx = 0;
                 start_tok = -1;
@@ -110,16 +141,9 @@ TokenList *lex_file(FILE *f) {
         ++line_idx;
     }
     if (buf_idx > 0) {
-        add_to_token_list(list, lexeme_to_token(buf, buf_idx+1, lineno, start_tok));
+        add_to_TokenList(list, lexeme_to_token(buf, buf_idx+1, lineno, start_tok));
     }
     return list;
-}
-
-
-int is_op(char c) {
-    if (c == '*' || c == '/' || c == '+' || c == '-' || c == '=' || c == ';' ||
-        c == '(' || c == ')' || c == '{' || c == '}' || c == ',' || c == '.') return 0;
-    return -1;
 }
 
 #ifdef __cplusplus
