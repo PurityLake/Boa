@@ -4,6 +4,9 @@
 
 #include "boa.h"
 
+int higher_precendence(char a, char b);
+int evauluate(Node *node);
+
 int main(int argc, char **argv) {
     if (argc > 1) {
         if (strcmp(argv[1], "--object") == 0) {
@@ -58,6 +61,84 @@ int main(int argc, char **argv) {
             }
         }
     }
-    getchar();
     return 0;
+}
+
+int higher_precendence(char a, char b) {
+    if (a == b) {
+        return 1;
+    }
+    if (a == '+') {
+        if (b == '-') return 1;
+        return b == '*' || b == '/';
+    } else if (a == '-') {
+        if (b == '+') return 1;
+        return b == '*' || b == '/';
+    } else if (a == '*') {
+        if (b == '/') return 1;
+        return b == '+' || b == '-';
+    } else {
+        if (b == '*') return 1;
+        return b == '+' || b == '-';
+    }
+}
+
+int evauluate(Node *node) {
+    if (node->left == NULL && node->right == NULL) return atoi(node->token->value);
+    int operand_stack[10];
+    int *operand = operand_stack;
+    char operator_stack[10];
+    char *op = operator_stack;
+
+    while (node->right != NULL) { 
+        *operand = atoi(node->left->token->value);
+        ++operand;
+        if (op != operator_stack && higher_precendence(*(op - 1), node->token->value[0])) {
+            int result;
+            --operand;
+            --op;
+            switch (*op) {
+                case '+':
+                    result = (*(operand - 1)) + (*operand);
+                    break;
+                case '-':
+                    result = (*(operand - 1)) - (*operand);
+                    break;
+                case '*':
+                    result = (*(operand - 1)) * (*operand);
+                    break;
+                case '/':
+                    result = (*(operand - 1)) / (*operand);
+                    break;
+            }
+            *operand = result;
+            ++operand;
+        }
+        *op = node->token->value[0];
+        ++op;
+        node = node->right;
+    }
+    *operand = atoi(node->token->value);
+    while (operand != operand_stack && op != operator_stack) {
+        int result;
+        --op;
+        switch (*op) {
+            case '+':
+                result = (*(operand - 1)) + (*operand);
+                break;
+            case '-':
+                result = (*(operand - 1)) - (*operand);
+                break;
+            case '*':
+                result = (*(operand - 1)) * (*operand);
+                break;
+            case '/':
+                result = (*(operand - 1)) / (*operand);
+                break;
+        }
+        --operand;
+        *operand = result;
+    }
+
+    return *operand;
 }

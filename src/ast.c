@@ -30,6 +30,7 @@ void free_Node(Node *node) {
 }
 
 void print_nodel(Node *node) {
+    static int printed = 0;
     if (node == NULL) return;
     print_nodel(node->left);
     if (node->token != NULL) {
@@ -39,6 +40,9 @@ void print_nodel(Node *node) {
             printf("%s ", node->token->value);
             fflush(stdout);
         }
+        ++printed;
+    } else {
+        printf("HERE %d ", printed);
     }
     print_nodel(node->right);
     fflush(stdout);

@@ -93,7 +93,8 @@ void expression(Node *node) {
         ident(i);
     }
     if (o != NULL) free(o);
-    node->left = i;
+    node->token = i->token;
+    free(i);
 }
 
 void var_dec(Node *node) {
