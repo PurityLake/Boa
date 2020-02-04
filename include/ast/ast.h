@@ -16,6 +16,8 @@ typedef struct _node {
     struct _node *left, *right;
 } Node;
 
+typedef int (*compare_node_func)(Node *, Node *);
+
 Node *create_Node(Token *token);
 Node *create_with_parent_Node(Token *token, Node *parent);
 void free_Node(Node *node);

@@ -77,24 +77,77 @@ int op(Node *node) {
     return 0;
 }
 
+int precendence(opcode_t a) {
+    switch (a) {
+        case T_MULT:
+        case T_DIV:
+            return 1;
+        case T_PLUS:
+        case T_MINUS:
+            return 0;
+    }
+    printf("HERE PREC\n");
+    return -1;
+}
+
 void expression(Node *node) {
     if (_is_error) return;
+    Node **output_queue = (Node **)calloc(32, sizeof(Node *));
+    output_queue[0] = NULL;
+    Node **outq_ptr = output_queue + 1;
+    Node **operator_queue = (Node **)calloc(32, sizeof(Node *));
+    operator_queue[0] = NULL;
+    Node **op_queue_ptr = operator_queue + 1;
     Node *i = create_with_parent_Node(NULL, node);
     Node *o = create_with_parent_Node(NULL, node);
     ident(i);
     while (op(o)) {
-        node->token = o->token;
-        free(o);
-        node->left = i;
-        node->right = create_with_parent_Node(NULL, node);
-        node = node->right;
+        *outq_ptr = i;
+        if (op_queue_ptr != (operator_queue + 1)) {
+            if (precendence(o->token->type) > 
+                    precendence((*(op_queue_ptr-1))->token->type)) {
+                *op_queue_ptr = o;
+                ++op_queue_ptr;
+            } else {
+                --op_queue_ptr;
+                do {
+                    ++outq_ptr;
+                    *outq_ptr = *op_queue_ptr;
+                    --op_queue_ptr;
+                } while (*op_queue_ptr != NULL && precendence(o->token->type) <= 
+                                precendence((*op_queue_ptr)->token->type));
+                ++op_queue_ptr;
+                *op_queue_ptr = o;
+                ++op_queue_ptr;
+            }
+        } else {
+            *op_queue_ptr = o;
+            ++op_queue_ptr;
+        }
         i = create_with_parent_Node(NULL, node);
         o = create_with_parent_Node(NULL, node);
         ident(i);
+        ++outq_ptr;
     }
+    *outq_ptr = i;
+    --op_queue_ptr;
+    while (*op_queue_ptr != NULL) {
+        ++outq_ptr;
+        *outq_ptr = *op_queue_ptr;
+        --op_queue_ptr;
+    }
+    ++outq_ptr;
+    *outq_ptr = NULL;
+
+    Node **temp = output_queue + 1;
+    while (*temp != NULL) {
+        (*temp)->right = *(temp + 1);
+        ++temp;
+    }
+    node->right = output_queue[1];
+    free(output_queue);
+    free(operator_queue);
     if (o != NULL) free(o);
-    node->token = i->token;
-    free(i);
 }
 
 void var_dec(Node *node) {
@@ -109,8 +162,7 @@ void var_dec(Node *node) {
         node = node->left;
         i->parent = node;
         node->left = i;
-        node->right = create_with_parent_Node(NULL, node);
-        expression(node->right);
+        expression(node);
     }
 }
 

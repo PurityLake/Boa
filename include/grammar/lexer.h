@@ -64,6 +64,7 @@ typedef struct _tokenlist {
 } TokenList;
 
 Token *create_Token(int type, char *value, unsigned int line, unsigned int col);
+int compare_Token(Token *a, Token *b);
 void free_Token(Token *tok);
 void free_nostr_Token(Token *tok);
 

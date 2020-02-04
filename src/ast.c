@@ -30,19 +30,17 @@ void free_Node(Node *node) {
 }
 
 void print_nodel(Node *node) {
-    static int printed = 0;
     if (node == NULL) return;
     print_nodel(node->left);
     if (node->token != NULL) {
-        if (node->token->type == T_SPLIT) {
-            printf("\n");
+        if (node->token->type > T_PARSER_START) {
+            if (node->token->type == T_SPLIT) {
+                printf("\n");
+            }
         } else {
             printf("%s ", node->token->value);
             fflush(stdout);
         }
-        ++printed;
-    } else {
-        printf("HERE %d ", printed);
     }
     print_nodel(node->right);
     fflush(stdout);
@@ -69,7 +67,7 @@ void print_noder(Node *node) {
 }
 
 void print_Node(Node *node) {
-    if (node->left != NULL && node->left->token->type == T_FUNC_DEF) {
+    if (node->left != NULL && node->left->token != NULL && node->left->token->type == T_FUNC_DEF) {
         print_noder(node);
     } else {
         print_nodel(node);

@@ -4,7 +4,6 @@
 
 #include "boa.h"
 
-int higher_precendence(char a, char b);
 int evauluate(Node *node);
 
 int main(int argc, char **argv) {
@@ -50,6 +49,7 @@ int main(int argc, char **argv) {
                 while (n != NULL) {
                     print_Node(n);
                     printf("\n");
+                    printf("%d\n", evauluate(n->left->left->right));
                     free_Node(n);
                     n = parse_list();
                 }
@@ -64,81 +64,36 @@ int main(int argc, char **argv) {
     return 0;
 }
 
-int higher_precendence(char a, char b) {
-    if (a == b) {
-        return 1;
-    }
-    if (a == '+') {
-        if (b == '-') return 1;
-        return b == '*' || b == '/';
-    } else if (a == '-') {
-        if (b == '+') return 1;
-        return b == '*' || b == '/';
-    } else if (a == '*') {
-        if (b == '/') return 1;
-        return b == '+' || b == '-';
-    } else {
-        if (b == '*') return 1;
-        return b == '+' || b == '-';
-    }
-}
-
 int evauluate(Node *node) {
     if (node->left == NULL && node->right == NULL) return atoi(node->token->value);
-    int operand_stack[10];
-    int *operand = operand_stack;
-    char operator_stack[10];
-    char *op = operator_stack;
+    int _operands[32];
+    int *operands = _operands;
 
-    while (node->right != NULL) { 
-        *operand = atoi(node->left->token->value);
-        ++operand;
-        if (op != operator_stack && higher_precendence(*(op - 1), node->token->value[0])) {
-            int result;
-            --operand;
-            --op;
-            switch (*op) {
-                case '+':
-                    result = (*(operand - 1)) + (*operand);
+    while (node != NULL) {
+        int is_op = node->token->type > T_OPS_START && node->token->type < T_OPS_END;
+        if (!is_op) {
+            *operands = atoi(node->token->value);
+            ++operands;
+        } else {
+            --operands;
+            switch (node->token->type) {
+                case T_MULT:
+                    *(operands - 1) = *(operands - 1) * *operands;
                     break;
-                case '-':
-                    result = (*(operand - 1)) - (*operand);
+                case T_DIV:
+                    *(operands - 1) = *(operands - 1) / *operands;
                     break;
-                case '*':
-                    result = (*(operand - 1)) * (*operand);
+                case T_PLUS:
+                    *(operands - 1) = *(operands - 1) + *operands;
                     break;
-                case '/':
-                    result = (*(operand - 1)) / (*operand);
+                case T_MINUS:
+                    *(operands - 1) = *(operands - 1) - *operands;
                     break;
             }
-            *operand = result;
-            ++operand;
         }
-        *op = node->token->value[0];
-        ++op;
         node = node->right;
     }
-    *operand = atoi(node->token->value);
-    while (operand != operand_stack && op != operator_stack) {
-        int result;
-        --op;
-        switch (*op) {
-            case '+':
-                result = (*(operand - 1)) + (*operand);
-                break;
-            case '-':
-                result = (*(operand - 1)) - (*operand);
-                break;
-            case '*':
-                result = (*(operand - 1)) * (*operand);
-                break;
-            case '/':
-                result = (*(operand - 1)) / (*operand);
-                break;
-        }
-        --operand;
-        *operand = result;
-    }
-
-    return *operand;
+    printf("\n");
+    --operands;
+    return *operands;
 }
