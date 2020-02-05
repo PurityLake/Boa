@@ -49,7 +49,7 @@ int main(int argc, char **argv) {
                 while (n != NULL) {
                     print_Node(n);
                     printf("\n");
-                    printf("%d\n", evauluate(n->left->left->right));
+                    printf("STORE\t\t%s %d\n", n->left->left->left->token->value, evauluate(n->left->left->right));
                     free_Node(n);
                     n = parse_list();
                 }
@@ -72,28 +72,32 @@ int evauluate(Node *node) {
     while (node != NULL) {
         int is_op = node->token->type > T_OPS_START && node->token->type < T_OPS_END;
         if (!is_op) {
+            printf("PUSH_CONST\t%s\n", node->token->value);
             *operands = atoi(node->token->value);
             ++operands;
         } else {
             --operands;
             switch (node->token->type) {
                 case T_MULT:
+                    printf("MULT\n");
                     *(operands - 1) = *(operands - 1) * *operands;
                     break;
                 case T_DIV:
+                    printf("DIV\n");
                     *(operands - 1) = *(operands - 1) / *operands;
                     break;
                 case T_PLUS:
+                    printf("PLUS\n");
                     *(operands - 1) = *(operands - 1) + *operands;
                     break;
                 case T_MINUS:
+                    printf("SUB\n");
                     *(operands - 1) = *(operands - 1) - *operands;
                     break;
             }
         }
         node = node->right;
     }
-    printf("\n");
     --operands;
     return *operands;
 }
