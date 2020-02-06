@@ -10,22 +10,31 @@ typedef struct {
 } _translation_table_entry;
 
 static const _translation_table_entry _trans_table[] = {
-    { T_DEF,    "def" },
-    { T_IF,     "if" },
-    { T_VAR,    "var" },
-    { T_BEGIN,  "begin" },
-    { T_LPAREN, "(" },
-    { T_RPAREN, ")" },
-    { T_LCURL,  "{" },
-    { T_RCURL,  "}" }, 
-    { T_COMMA,  "," },
-    { T_DOT,    "." },
-    { T_MULT,   "*" },
-    { T_PLUS,   "+" },
-    { T_MINUS,  "-" },
-    { T_DIV,    "/" },
-    { T_EQ,     "=" },
-    { T_SEMI,   ";" }
+    { T_DEF,            "def" },
+    { T_IF,             "if" },
+    { T_VAR,            "var" },
+    { T_BEGIN,          "begin" },
+    { T_END,            "end" },
+    { T_LPAREN,         "(" },
+    { T_RPAREN,         ")" },
+    { T_LCURL,          "{" },
+    { T_RCURL,          "}" }, 
+    { T_COMMA,          "," },
+    { T_DOT,            "." },
+    { T_MULT,           "*" },
+    { T_PLUS,           "+" },
+    { T_MINUS,          "-" },
+    { T_DIV,            "/" },
+    { T_EQ,             "=" },
+    { T_SEMI,           ";" },
+    { T_IDENT,          "IDENT" },
+    { T_INTEGER,        "INTEGER" },
+    { T_FLOAT,          "FLOAT" },
+    { T_BLOCK,          "BLOCK" },
+    { T_VAR_DEC,        "VAR_DEC" },
+    { T_FUNC_DEF,       "FUNC_DEF" },
+    { T_PARAM_LIST,     "PARAM_LIST" },
+    { T_SPLIT,          "SPLIT" }
 };
 
 static const size_t TABLE_SIZE = sizeof(_trans_table) / sizeof(_translation_table_entry);
@@ -102,6 +111,28 @@ Token *lexeme_to_token(const char *lexeme, int len, int lineno, int col) {
         }
     }
     return create_Token(T_IDENT, resized_lexeme, lineno, col);
+}
+
+opcode_t str_to_opcode(char *str) {
+    _translation_table_entry entry;
+    for (int i = 0; i < TABLE_SIZE; ++i) {
+        entry = _trans_table[i];
+        if (strcmp(str, entry.name) == 0) {
+            return entry.type;
+        }
+    }
+    return T_IDENT;
+}
+
+char *opcode_to_str(opcode_t opcode) {
+    _translation_table_entry entry;
+    for (int i = 0; i < TABLE_SIZE; ++i) {
+        entry = _trans_table[i];
+        if (opcode == entry.type) {
+            return entry.name;
+        }
+    }
+    return "UNKNOWN";
 }
 
 TokenList *lex_file(FILE *f) {

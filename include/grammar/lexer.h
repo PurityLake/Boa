@@ -20,7 +20,7 @@ enum {
     
     // keywords section
     T_KEYWORDS_START,
-    T_DEF, T_IF, T_VAR, T_BEGIN,
+    T_DEF, T_IF, T_VAR, T_BEGIN, T_END,
     T_KEYWORDS_END,
 
     // operators section
@@ -29,6 +29,10 @@ enum {
     T_COMMA, T_DOT,
     T_MULT, T_PLUS, T_MINUS, T_DIV, T_EQ, T_SEMI,
     T_OPS_END,
+
+    T_LITERALS_START,
+    T_INTEGER, T_FLOAT,
+    T_LITERALS_END,
 
     // used by the parser
     T_PARSER_START,
@@ -71,6 +75,9 @@ void free_nostr_Token(Token *tok);
 TokenList *create_TokenList();
 void add_to_TokenList(TokenList *list, Token *token);
 void free_TokenList(TokenList *list);
+
+opcode_t str_to_opcode(char *str);
+char *opcode_to_str(opcode_t opcode);
 
 // Takes a file as an argument and tokenises the contents
 TokenList *lex_file(FILE *filename);

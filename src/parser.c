@@ -39,38 +39,29 @@ int expect(char *val, char *expected_fmt) {
     return 0;
 }
 
-int accept_type(int type) {
-    if (_is_error) return 0;
-    if (_curr->token == NULL) return 0;
-    if (_curr->token->type == type) {
-        next_tok();
-        return 1;
-    }
-    return 0;
-}
-
 void ident(Node *node) {
     if (_is_error) return;
     node->token = _curr->token;
-    if (!accept_type(T_IDENT)) error("Invalud identifier: '%s'", _curr->token->value);
+    number(node);
+    if (!accept(node->token->value)) error("Invalud identifier: '%s'", _curr->token->value);
 }
 
 void number(Node *node) {
     if (_is_error) return;
-    size_t len = strlen(_curr->token->value);
-    for (int i = 0; i < len; i++) {
-        if (!isdigit(_curr->token->value[i])) {
-            error("Invalid number: '%s'\n", _curr->token->value);
+    size_t len = strlen(node->token->value);
+    for (int i = 0; i < len; ++i) {
+        if (isdigit(node->token->value[i]) == 0 && node->token->value[i] != '.') {
             return;
         }
     }
-    accept(_curr->token->value);
+    node->token->type = T_INTEGER;
 }
 
 int op(Node *node) {
     if (_is_error) return 0;
     if (accept("+") || accept("-") || accept("*") || accept("/") || accept("=")) {
         node->token = _curr->prev->token;
+        node->token->type = str_to_opcode(node->token->value);
         return 1;
     }
     node->token = NULL;
@@ -86,7 +77,6 @@ int precendence(opcode_t a) {
         case T_MINUS:
             return 0;
     }
-    printf("HERE PREC\n");
     return -1;
 }
 

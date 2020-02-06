@@ -49,7 +49,8 @@ int main(int argc, char **argv) {
                 while (n != NULL) {
                     print_Node(n);
                     printf("\n");
-                    printf("STORE\t\t%s %d\n", n->left->left->left->token->value, evauluate(n->left->left->right));
+                    //printf("STORE_POP\t%s %d\n", n->left->left->left->token->value, evauluate(n->left->left->right));
+                    printf("%d\n", evauluate(n->left->left->right));
                     free_Node(n);
                     n = parse_list();
                 }
@@ -70,28 +71,29 @@ int evauluate(Node *node) {
     int *operands = _operands;
 
     while (node != NULL) {
+        printf("%s          %s\n", node->token->value, opcode_to_str(node->token->type));
         int is_op = node->token->type > T_OPS_START && node->token->type < T_OPS_END;
         if (!is_op) {
-            printf("PUSH_CONST\t%s\n", node->token->value);
+            //printf("PUSH_CONST\t%s\n", node->token->value);
             *operands = atoi(node->token->value);
             ++operands;
         } else {
             --operands;
             switch (node->token->type) {
                 case T_MULT:
-                    printf("MULT\n");
+                    //printf("MULT\n");
                     *(operands - 1) = *(operands - 1) * *operands;
                     break;
                 case T_DIV:
-                    printf("DIV\n");
+                    //printf("DIV\n");
                     *(operands - 1) = *(operands - 1) / *operands;
                     break;
                 case T_PLUS:
-                    printf("PLUS\n");
+                    //printf("PLUS\n");
                     *(operands - 1) = *(operands - 1) + *operands;
                     break;
                 case T_MINUS:
-                    printf("SUB\n");
+                    //printf("SUB\n");
                     *(operands - 1) = *(operands - 1) - *operands;
                     break;
             }
